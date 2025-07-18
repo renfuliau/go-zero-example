@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package order;
+
+option go_package = "./order";
+
+// --- 請求與回應的訊息結構 ---
+
+// 建立訂單請求
+message CreateOrderReq {
+  int64 userId = 1;
+  repeated OrderItem items = 2;
+  string address = 3;
+}
+
+// 訂單項目
+message OrderItem {
+  int64 productId = 1;
+  int32 quantity = 2;
+  double price = 3;
+}
+
+// 建立訂單回應
+message CreateOrderResp {
+  string orderId = 1;
+  bool success = 2;
+}
+
+// 取得訂單詳情請求
+message GetOrderReq {
+  string orderId = 1;
+}
+
+// 取得訂單詳情回應
+message GetOrderResp {
+  string orderId = 1;
+  int64 userId = 2;
+  repeated OrderItem items = 3;
+  string status = 4;
+  double totalAmount = 5;
+  string createdAt = 6;
+}
+
+
+// --- 定義服務 ---
+
+service Order {
+  // 建立訂單
+  rpc CreateOrder(CreateOrderReq) returns(CreateOrderResp);
+  // 取得訂單詳情
+  rpc GetOrder(GetOrderReq) returns(GetOrderResp);
+}

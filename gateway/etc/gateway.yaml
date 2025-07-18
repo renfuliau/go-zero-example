@@ -1,0 +1,14 @@
+Name: api-gateway
+Host: localhost
+Port: 8888
+Upstreams:
+  - Grpc:
+      Target: localhost:8080
+    # protoset mode
+    ProtoSets:
+      - order_service.pb
+    # Mappings can also be written in proto options
+    Mappings:
+      - Method: get
+        Path: /order/get
+        RpcPath: order.Order/GetOrder

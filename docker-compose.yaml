@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # MySQL 資料庫服務
+  mysql:
+    image: mysql:8.0
+    container_name: ddd-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password # 密碼需與 orderservice.yaml 中的設定一致
+      MYSQL_DATABASE: order             # 資料庫名稱需與 orderservice.yaml 中的設定一致
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  # Redis 快取服務
+  redis:
+    image: redis:6.2-alpine
+    container_name: ddd-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  # Etcd 服務發現
+  etcd:
+    image: bitnami/etcd:3.5
+    container_name: ddd-etcd
+    restart: always
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+
+  # 我們的訂單 RPC 服務 (需要先為其建立 Dockerfile)
+  orderservice:
+    build:
+      context: ./rpc # Dockerfile 的上下文路徑
+      dockerfile: Dockerfile
+    container_name: ddd-orderservice-rpc
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # 這裡的 LOCAL_HOST 指向的是服務名稱，Docker Compose 會自動解析
+      - LOCAL_HOST=mysql
+    depends_on:
+      - mysql
+      - redis
+      - etcd
+    # 如果有 API Gateway，也可以用類似的方式加入
+    # orderapi:
+    #   build:
+    #     context: ./api
+    #     dockerfile: Dockerfile
+    #   ...
+
+volumes:
+  mysql-data:
+  redis-data:

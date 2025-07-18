@@ -1,0 +1,15 @@
+Name: order.rpc
+ListenOn: 127.0.0.1:8080
+Mode: dev
+
+# 新增資料庫設定
+DataSource:
+  Read: root:root_password@tcp(127.0.0.1:3306)/order?charset=utf8mb4&parseTime=True&loc=Asia%2FTaipei
+  Write: root:root_password@tcp(127.0.0.1:3306)/order?charset=utf8mb4&parseTime=True&loc=Asia%2FTaipei
+
+MigrationPath: '../resource/db'
+
+Cache:
+  - Host: 127.0.0.1:6379
+    Type: node
+    Tls: false
